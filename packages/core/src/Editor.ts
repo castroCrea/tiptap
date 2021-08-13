@@ -132,7 +132,20 @@ export class Editor extends EventEmitter {
    * @param options A list of options
    */
   public setOptions(options: Partial<EditorOptions> = {}): void {
-    this.options = { ...this.options, ...options }
+    this.options = {
+      ...this.options,
+      ...options,
+    }
+
+    if (!this.view || !this.state || this.isDestroyed) {
+      return
+    }
+
+    if (this.options.editorProps) {
+      this.view.setProps(this.options.editorProps)
+    }
+
+    this.view.updateState(this.state)
   }
 
   /**
@@ -140,17 +153,18 @@ export class Editor extends EventEmitter {
    */
   public setEditable(editable: boolean): void {
     this.setOptions({ editable })
-
-    if (this.view && this.state && !this.isDestroyed) {
-      this.view.updateState(this.state)
-    }
   }
 
   /**
    * Returns whether the editor is editable.
    */
   public get isEditable(): boolean {
-    return this.view && this.view.editable
+    // since plugins are applied after creating the view
+    // `editable` is always `true` for one tick.
+    // that’s why we also have to check for `options.editable`
+    return this.options.editable
+      && this.view
+      && this.view.editable
   }
 
   /**

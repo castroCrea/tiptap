@@ -3,6 +3,49 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [2.0.0-beta.94](https://github.com/ueberdosis/tiptap/compare/@tiptap/starter-kit@2.0.0-beta.93...@tiptap/starter-kit@2.0.0-beta.94) (2021-08-12)
+
+**Note:** Version bump only for package @tiptap/starter-kit
+
+
+
+
+
+# [2.0.0-beta.93](https://github.com/ueberdosis/tiptap/compare/@tiptap/starter-kit@2.0.0-beta.92...@tiptap/starter-kit@2.0.0-beta.93) (2021-08-12)
+
+**Note:** Version bump only for package @tiptap/starter-kit
+
+
+
+
+
+# [2.0.0-beta.92](https://github.com/ueberdosis/tiptap/compare/@tiptap/starter-kit@2.0.0-beta.91...@tiptap/starter-kit@2.0.0-beta.92) (2021-08-11)
+
+**Note:** Version bump only for package @tiptap/starter-kit
+
+
+
+
+
+# [2.0.0-beta.91](https://github.com/ueberdosis/tiptap/compare/@tiptap/starter-kit@2.0.0-beta.90...@tiptap/starter-kit@2.0.0-beta.91) (2021-08-11)
+
+**Note:** Version bump only for package @tiptap/starter-kit
+
+
+
+
+
+# [2.0.0-beta.90](https://github.com/ueberdosis/tiptap/compare/@tiptap/starter-kit@2.0.0-beta.89...@tiptap/starter-kit@2.0.0-beta.90) (2021-08-09)
+
+
+### Bug Fixes
+
+* improve export for StarterKitOptions ([8fcc80d](https://github.com/ueberdosis/tiptap/commit/8fcc80d68ec9471523ec0a8108035afef4d0f9f3))
+
+
+
+
+
 # [2.0.0-beta.89](https://github.com/ueberdosis/tiptap/compare/@tiptap/starter-kit@2.0.0-beta.88...@tiptap/starter-kit@2.0.0-beta.89) (2021-07-30)
 
 **Note:** Version bump only for package @tiptap/starter-kit

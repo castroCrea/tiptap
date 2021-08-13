@@ -4,9 +4,16 @@ import { EditorView } from 'prosemirror-view'
 import tippy, { Instance, Props } from 'tippy.js'
 
 export interface FloatingMenuPluginProps {
+  key: PluginKey | string,
   editor: Editor,
   element: HTMLElement,
   tippyOptions?: Partial<Props>,
+  shouldShow: ((props: {
+    editor: Editor,
+    view: EditorView,
+    state: EditorState,
+    oldState?: EditorState,
+  }) => boolean) | null,
 }
 
 export type FloatingMenuViewProps = FloatingMenuPluginProps & {
@@ -22,22 +29,48 @@ export class FloatingMenuView {
 
   public preventHide = false
 
-  public tippy!: Instance
+  public tippy: Instance | undefined
+
+  public shouldShow: Exclude<FloatingMenuPluginProps['shouldShow'], null> = ({ state }) => {
+    const { selection } = state
+    const { $anchor, empty } = selection
+    const isRootDepth = $anchor.depth === 1
+    const isEmptyTextBlock = $anchor.parent.isTextblock
+      && !$anchor.parent.type.spec.code
+      && !$anchor.parent.textContent
+
+    if (!empty || !isRootDepth || !isEmptyTextBlock) {
+      return false
+    }
+
+    return true
+  }
 
   constructor({
     editor,
     element,
     view,
     tippyOptions,
+    shouldShow,
   }: FloatingMenuViewProps) {
     this.editor = editor
     this.element = element
     this.view = view
+
+    if (shouldShow) {
+      this.shouldShow = shouldShow
+    }
+
     this.element.addEventListener('mousedown', this.mousedownHandler, { capture: true })
     this.editor.on('focus', this.focusHandler)
     this.editor.on('blur', this.blurHandler)
-    this.createTooltip(tippyOptions)
     this.element.style.visibility = 'visible'
+
+    // We create tippy asynchronously to make sure that `editor.options.element`
+    // has already been moved to the right position in the DOM
+    requestAnimationFrame(() => {
+      this.createTooltip(tippyOptions)
+    })
   }
 
   mousedownHandler = () => {
@@ -67,7 +100,7 @@ export class FloatingMenuView {
   }
 
   createTooltip(options: Partial<Props> = {}) {
-    this.tippy = tippy(this.view.dom, {
+    this.tippy = tippy(this.editor.options.element, {
       duration: 0,
       getReferenceClientRect: null,
       content: this.element,
@@ -82,29 +115,27 @@ export class FloatingMenuView {
   update(view: EditorView, oldState?: EditorState) {
     const { state, composing } = view
     const { doc, selection } = state
+    const { from, to } = selection
     const isSame = oldState && oldState.doc.eq(doc) && oldState.selection.eq(selection)
 
     if (composing || isSame) {
       return
     }
 
-    const {
-      $anchor,
-      empty,
-      from,
-      to,
-    } = selection
-    const isRootDepth = $anchor.depth === 1
-    const isNodeEmpty = !selection.$anchor.parent.isLeaf && !selection.$anchor.parent.textContent
-    const isActive = isRootDepth && isNodeEmpty
+    const shouldShow = this.shouldShow({
+      editor: this.editor,
+      view,
+      state,
+      oldState,
+    })
 
-    if (!empty || !isActive) {
+    if (!shouldShow) {
       this.hide()
 
       return
     }
 
-    this.tippy.setProps({
+    this.tippy?.setProps({
       getReferenceClientRect: () => posToDOMRect(view, from, to),
     })
 
@@ -112,26 +143,26 @@ export class FloatingMenuView {
   }
 
   show() {
-    this.tippy.show()
+    this.tippy?.show()
   }
 
   hide() {
-    this.tippy.hide()
+    this.tippy?.hide()
   }
 
   destroy() {
-    this.tippy.destroy()
+    this.tippy?.destroy()
     this.element.removeEventListener('mousedown', this.mousedownHandler)
     this.editor.off('focus', this.focusHandler)
     this.editor.off('blur', this.blurHandler)
   }
 }
 
-export const FloatingMenuPluginKey = new PluginKey('menuFloating')
-
 export const FloatingMenuPlugin = (options: FloatingMenuPluginProps) => {
   return new Plugin({
-    key: FloatingMenuPluginKey,
+    key: typeof options.key === 'string'
+      ? new PluginKey(options.key)
+      : options.key,
     view: view => new FloatingMenuView({ view, ...options }),
   })
 }
